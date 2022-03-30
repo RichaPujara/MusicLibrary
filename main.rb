@@ -13,33 +13,44 @@ require './helper'
 def music_library
     user_list = CSV.parse(File.read("user_list.csv"), headers: true)
 
-    show_logo
-
     user = nil
     if user_list.empty?
+        show_logo
         user = create_user(user_list)
     else
-        puts "\nAre you existing user"
-        puts "Press 1: Yes I am existing user, I would like login"
-        puts "Press 2: I am new user, please set my profile"
-        user_input = gets.chomp.to_i
-        case user_input
-        when 1
-            user = login(user_list)
-        when 2
-            user = create_user(user_list)
-        else
-            puts "Invalid input"
+        loop do
+            show_logo
+            puts "\nAre you existing user"
+            puts "Press 1: Yes I am existing user, I would like login"
+            puts "Press 2: I am new user, please set my profile"
+            puts "Press 3: To close My Music World"
+            user_input = gets.chomp.to_i
+            case user_input
+            when 1
+                user = login(user_list)
+                break
+
+            when 2
+                user = create_user(user_list)
+                break
+
+            when 3
+                exit_app
+
+            else
+                puts "Invalid Input. Please try again with a valid input"
+                sleep(2)
+            end
         end
     end
 
     main_library = user.song_list
-    loop do 
+    loop do
         show_logo
         puts "What would you like to do??\n"
-        puts "1. List all Music files"
-        puts "2. My Playlists"
-        puts "3. Exit"
+        puts "Press 1. List all Music files"
+        puts "Press 2. My Playlists"
+        puts "Press 3. To close My Music World"
         user_input = gets.strip.to_i
 
         case user_input
@@ -50,8 +61,7 @@ def music_library
             my_playlist(user, main_library)
 
         when 3
-            puts Rainbow("\nThank you for using My Music Manager today.. See you soon..").cyan
-            break
+            exit_app
 
         else
             puts "Invalid Input. Please try again with a valid input"
@@ -78,12 +88,9 @@ def create_user(user_list)
 
         puts "Username \"#{uname}\" exists. Would you like try again with a different username:"
         puts "Press 1: To try again"
-        puts "Press 2: Exit from My Music Manager"
+        puts "Press 2: To close My Music World"
         user_input = gets.chomp.to_i
-        if user_input == 2
-            puts Rainbow("\n\nThank you for using My Music Manager today.. See you again soon").cyan
-            exit 0
-        end
+        exit_app if user_input == 2
         puts ""
     end
 
@@ -132,12 +139,9 @@ def login(user_list)
 
         puts "Username \"#{uname}\" unknown.\nWould you like to try again:"
         puts "Press 1: To try again"
-        puts "Press 2: Exit from My Music Manager"
+        puts "Press 2: To close My Music World"
         user_input = gets.chomp.to_i
-        if user_input == 2
-            puts Rainbow("\n\nThank you for using My Music Manager today.. See you again soon").cyan
-            exit 0
-        end
+        exit_app if user_input == 2
         puts ""
     end
 
@@ -153,12 +157,9 @@ def login(user_list)
 
         puts "Invalid Password.\n\nWould you like to try again:"
         puts "Press 1: To try again"
-        puts "Press 2: Exit from My Music Manager"
+        puts "Press 2: To close My Music World"
         user_input = gets.chomp.to_i
-        if user_input == 2
-            puts "\n\nThank you for using My Music Manager today.. See you again soon"
-            exit 0
-        end
+        exit_app if user_input == 2
         puts ""
     end
 
@@ -167,8 +168,8 @@ def login(user_list)
 
     if user.song_list.songs.length.zero?
         puts Rainbow("\nFailed to find any music files at \"#{user.dir_location}\".").yellow
-        puts Rainbow("Please add music files at this location and come back. Bye for now").cyan
-        exit 0
+        puts Rainbow("Please add music files at this location and come back.").yellow
+        exit_app
     end
 
     sleep(2)
@@ -183,7 +184,8 @@ def list_all_songs(main_library)
         puts "\n\nPress 1: Play All songs"
         puts "Press 2: Play specific song"
         puts "Press 3: Shuffle play songs"
-        puts "Press 4: Go Back"
+        puts "Press 4: Go Back to previous screen"
+        puts "Press 5: To close My Music World"
         user_input = gets.chomp.to_i
 
         case user_input
@@ -200,6 +202,9 @@ def list_all_songs(main_library)
         when 4
             break
 
+        when 5
+            exit_app
+
         else
             puts "Invalid Input. Please try again with a valid input"
             sleep(2)
@@ -208,13 +213,14 @@ def list_all_songs(main_library)
 end
 
 # Playlist options
-def my_playlist(user, main_library)
+def my_playlist(user, _main_library)
     loop do
         show_logo
         puts "Select from below"
-        puts "1. Select Playlist"
-        puts "2. Create New Playlist"
-        puts "3. Go Back"
+        puts "Press 1. Select Playlist"
+        puts "Press 2. Create New Playlist"
+        puts "Press 3: Go Back to previous screen"
+        puts "Press 4: To close My Music World"
         user_input = gets.chomp.to_i
         show_logo
 
@@ -242,6 +248,9 @@ def my_playlist(user, main_library)
         when 3
             break
 
+        when 4
+            exit_app
+
         else
             puts "Invalid Input. Please try again with a valid input"
             sleep(2)
@@ -257,12 +266,12 @@ def playlist_operations(user, playlist)
         puts "Songs in the Playlist:"
         playlist.list_songs
         puts "\n\n\nWhat would you like to do now?"
-        puts "1. Play all songs"
-        puts "2. View all songs"
-        puts "3. Shuffle play songs"
-        puts "4. Edit Playlist"
-        puts "5. Delete Playlist"
-        puts "6. Go Back"
+        puts "Press 1. Play all songs"
+        puts "Press 2. Shuffle play songs"
+        puts "Press 3. Edit Playlist"
+        puts "Press 4. Delete Playlist"
+        puts "Press 5: Go Back to previous screen"
+        puts "Press 6: To close My Music World"
         user_input = gets.chomp.to_i
 
         case user_input
@@ -270,20 +279,20 @@ def playlist_operations(user, playlist)
             playlist.play_all
 
         when 2
-            playlist.list_songs
-
-        when 3
             playlist.shuffle_play
 
-        when 4
+        when 3
             playlist.edit_playlist(user.song_list, playlist_file_path)
 
-        when 5
+        when 4
             user.delete_playlist(playlist)
             break
 
-        when 6
+        when 5
             break
+
+        when 6
+            exit_app
 
         else
             puts "Invalid Input. Please try again with a valid input"

@@ -10,3 +10,8 @@ def show_logo
     puts pastel.bright_magenta(font.write("MY  MUSIC  WORLD"))
     puts pastel.bright_yellow("Your CLI based music manager.\n")
 end
+
+def exit_app
+    puts Rainbow("\nThank you for using My Music Manager today.. See you soon..").cyan
+    exit 0
+end 

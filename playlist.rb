@@ -14,9 +14,10 @@ class Playlist
         loop do
             show_logo
             puts "What would you like to do?"
-            puts "1. Add more songs"
-            puts "2. Delete songs"
-            puts "3. Go back"
+            puts "Press 1. Add more songs"
+            puts "Press 2. Delete songs"
+            puts "Press 3. Go Back to previous screen"
+            puts "Press 4: To close My Music World"
             user_input = gets.chomp.to_i
             show_logo
 
@@ -29,6 +30,9 @@ class Playlist
 
             when 3
                 break
+
+            when 4
+                exit_app
 
             else
                 puts "Invalid Input. Please try again with a valid input"
