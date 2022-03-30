@@ -13,11 +13,11 @@ class Playlist
     def edit_playlist(main_library, playlist_file_path)
         loop do
             show_logo
-            puts "What would you like to do?"
-            puts "Press 1. Add more songs"
-            puts "Press 2. Delete songs"
-            puts "Press 3. Go Back to previous screen"
-            puts "Press 4: To close My Music World"
+            puts_rosybrown("What would you like to do?")
+            puts_lightcoral("Press 1. Add more songs")
+            puts_lightcoral("Press 2. Delete songs")
+            puts_lightcoral("Press 3. Go Back to previous screen")
+            puts_indianred("Press 4: To close My Music World")
             user_input = gets.chomp.to_i
             show_logo
 
