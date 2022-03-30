@@ -1,4 +1,5 @@
 require './song'
+require './helper'
 
 # Class that defines user's playlist
 class Playlist
@@ -11,11 +12,14 @@ class Playlist
 
     def edit_playlist(main_library, playlist_file_path)
         loop do
+            show_logo
             puts "What would you like to do?"
             puts "1. Add more songs"
             puts "2. Delete songs"
             puts "3. Go back"
             user_input = gets.chomp.to_i
+            show_logo
+
             case user_input
             when 1
                 add_songs_to_playlist(main_library, playlist_file_path)
@@ -47,19 +51,20 @@ class Playlist
             songs_not_in_users_playlist.add_song(song) unless not_in_playlist
         end
 
+        puts "Songs not in #{@name} Playlist but in your music library:\n"
         songs_not_in_users_playlist.list_songs
-        puts "Please select the song no.s you want to add into #{@name} playlist: "
+        puts "\nPlease select the song numbers you want to add into #{@name} Playlist:"
         sel = gets.chomp.split(",").to_a
         sel.each do |s|
             add_song(songs_not_in_users_playlist.songs["#{s}".to_i - 1])
         end
 
-        write_playlist_to_file(playlist_file_path)
+        save_playlist(playlist_file_path)
 
-        system("clear")
-        puts "Congratulations! your playlist #{@name} has been updated."
-        puts "The #{@name} playlist now contains following songs:"
+        puts "\n\nCongratulations! your Playlist #{@name} has been updated."
+        puts "The #{@name} Playlist now contains following songs:"
         list_songs
+        sleep(2)
     end
 
     def add_song(new_song)
@@ -67,19 +72,20 @@ class Playlist
     end
 
     def remove_songs_from_playlist(playlist_file_path)
+        puts "Songs in your Playlist:\n"
         list_songs
-        puts "Select the no of songs you want to delete from #{@name} playlist:"
+        puts "\nSelect the songs numbers that you want to delete from #{@name} Playlist:"
         sel = gets.chomp.split(",").to_a
         sel.each do |s|
             remove_song(@songs["#{s}".to_i - 1])
         end
 
-        write_playlist_to_file(playlist_file_path)
+        save_playlist(playlist_file_path)
 
-        system("clear")
-        puts "Congratulations! Your playlist #{@name} has been updated."
-        puts "The #{@name} playlist now contains following songs:"
+        puts "\n\nCongratulations! Your Playlist #{@name} has been updated."
+        puts "The #{@name} Playlist now contains following songs:"
         list_songs
+        sleep(2)
     end
 
     def remove_song(song_name)
@@ -96,7 +102,7 @@ class Playlist
     def shuffle_play
         shuffled_songs = @songs.shuffle
 
-        puts "Shuffled songs and playing them in following order"
+        puts "Shuffled songs in #{@name} Playlist and playing them in following order"
         shuffled_songs.each_with_index do |song, index|
             puts "#{index + 1}. #{song.song_title}"
         end
@@ -117,7 +123,7 @@ class Playlist
         end
     end
 
-    def write_playlist_to_file(playlist_file_path)
+    def save_playlist(playlist_file_path)
         File.open(playlist_file_path.to_s, "w") do |f|
             f.puts @songs.to_json
         end

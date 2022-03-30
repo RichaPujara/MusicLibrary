@@ -1,5 +1,4 @@
 require 'tty-prompt'
-require 'tty-font'
 require "shellwords"
 require "io/console"
 require 'json'
@@ -8,17 +7,13 @@ require 'rainbow'
 require './user'
 require './noSongsFoundException'
 require 'fileutils'
+require './helper'
 
 # Entry point of the application
 def music_library
     user_list = CSV.parse(File.read("user_list.csv"), headers: true)
 
-    font = TTY::Font.new(:doom)
-    pastel = Pastel.new
-    system("clear")
-    puts pastel.yellow("Welcome to")
-    puts pastel.cyan(font.write("MY  MUSIC  WORLD"))
-    puts pastel.yellow("- Your CLI based music manager.")
+    show_logo
 
     user = nil
     if user_list.empty?
@@ -40,10 +35,10 @@ def music_library
 
     main_library = user.song_list
     loop do 
-        system("clear")
+        show_logo
         puts "What would you like to do??\n"
         puts "1. List all Music files"
-        puts "2. My playlists"
+        puts "2. My Playlists"
         puts "3. Exit"
         user_input = gets.strip.to_i
 
@@ -183,7 +178,7 @@ end
 # List user songs
 def list_all_songs(main_library)
     loop do
-        system("clear")
+        show_logo
         main_library.list_songs
         puts "\n\nPress 1: Play All songs"
         puts "Press 2: Play specific song"
@@ -215,37 +210,33 @@ end
 # Playlist options
 def my_playlist(user, main_library)
     loop do
-        system("clear")
+        show_logo
         puts "Select from below"
         puts "1. Select Playlist"
         puts "2. Create New Playlist"
         puts "3. Go Back"
         user_input = gets.chomp.to_i
-        system("clear")
+        show_logo
 
         case user_input
         when 1
             if user.playlist_list.length.zero?
-                system("clear")
-                puts "You have not created any playlist yet. Lets start by creating a new playlist from previous menu\n\n\n"
+                puts "You have not created any Playlist yet. Lets start by creating a new Playlist from previous menu\n\n"
                 sleep(2)
             else
+                puts "You have following Playlists:"
                 user.show_playlists
-                puts "Choose playlist No. you would like to go to"
+                puts "\nChoose Playlist Number you would like to go to. Press 0 to go back to previous screen."
                 playlist_number = gets.chomp.to_i
+
+                next if playlist_number.zero?
+
                 playlist = user.playlist_list[playlist_number - 1]
-                puts "\n\nSongs in your selected playlist:"
-                playlist.list_songs
                 playlist_operations(user, playlist)
             end
 
         when 2
-            system("clear")
             playlist = user.create_playlist
-            system("clear")
-            puts "Congratulations! new playlist #{playlist.name} has been created."
-            puts "The #{playlist.name} playlist contains following songs:"
-            playlist.list_songs
             playlist_operations(user, playlist)
 
         when 3
@@ -262,6 +253,9 @@ end
 def playlist_operations(user, playlist)
     loop do
         playlist_file_path = "#{user.music_manager_playlist_dir}/#{playlist.name}.playlist"
+        show_logo
+        puts "Songs in the Playlist:"
+        playlist.list_songs
         puts "\n\n\nWhat would you like to do now?"
         puts "1. Play all songs"
         puts "2. View all songs"
@@ -270,7 +264,7 @@ def playlist_operations(user, playlist)
         puts "5. Delete Playlist"
         puts "6. Go Back"
         user_input = gets.chomp.to_i
-        system("clear")
+
         case user_input
         when 1
             playlist.play_all

@@ -73,6 +73,7 @@ class User
         end
 
         @playlist_list.push(playlist)
+        puts "\nCongratulations! new playlist #{playlist.name} has been created."
         return playlist
     end
 

@@ -56,7 +56,7 @@ describe Playlist do
             expect_any_instance_of(Kernel).to receive(:system).with "play -V1 -q -S path"
             expect {
                 my_playlist.shuffle_play
-            }.to output("Shuffled songs and playing them in following order\n1. name\n").to_stdout
+            }.to output("Shuffled songs in Playlist1 Playlist and playing them in following order\n1. name\n").to_stdout
         end
     end
 
