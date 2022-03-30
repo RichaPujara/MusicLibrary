@@ -80,6 +80,7 @@ describe Playlist do
 
     describe "#add_songs_to_playlist(main_library, playlist_file_path)" do
         it "add songs to an existing playlist list" do
+            actual_stdout = $stdout
             $stdout = File.open(File::NULL, "w")
             song = Song.new("name", "path")
             my_playlist.add_song(song)
@@ -95,11 +96,13 @@ describe Playlist do
             my_playlist.add_songs_to_playlist(main_library, "test.playlist")
             expect(my_playlist.songs).to eq [song, song2]
             File.delete("test.playlist")
+            $stdout = actual_stdout
         end
     end
 
     describe "#remove_songs_from_playlist(playlist_file_path)" do
-        it "add songs to an existing playlist list" do
+        it "remove songs from existing playlist list" do
+            actual_stdout = $stdout
             $stdout = File.open(File::NULL, "w")
             song = Song.new("name", "path")
             my_playlist.add_song(song)
@@ -108,6 +111,7 @@ describe Playlist do
             my_playlist.remove_songs_from_playlist("test.playlist")
             expect(my_playlist.songs).to eq []
             File.delete("test.playlist")
+            $stdout = actual_stdout
         end
     end
 end

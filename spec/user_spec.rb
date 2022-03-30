@@ -43,12 +43,14 @@ describe User do
 
     describe "#create_playlist" do
         it "create a new playlist" do
+            actual_stdout = $stdout
             $stdout = File.open(File::NULL, "w")
             allow(user).to receive(:gets).and_return("test", "1,2")
             user.create_playlist
             expect(user.playlist_list.length).to eq 1
             expect(user.playlist_list[0].name).to eq "test"
             expect(user.playlist_list[0].songs.length).to eq 2
+            $stdout = actual_stdout
         end
     end
 
