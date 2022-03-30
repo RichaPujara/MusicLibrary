@@ -1,40 +1,45 @@
-require 'tty'
 require 'tty-prompt'
 require 'tty-font'
 require "shellwords"
 require "io/console"
 require 'json'
 require 'csv'
-require './classes'
+require 'rainbow'
+require './user'
+require './noSongsFoundException'
+require 'fileutils'
 
 # Entry point of the application
 def music_library
     user_list = CSV.parse(File.read("user_list.csv"), headers: true)
+
     font = TTY::Font.new(:doom)
     pastel = Pastel.new
-    prompt = TTY::Prompt.new
     system("clear")
     puts pastel.yellow("Welcome to")
-    puts pastel.cyan(font.write("MY  MUSIC  WORLD")) 
+    puts pastel.cyan(font.write("MY  MUSIC  WORLD"))
     puts pastel.yellow("- Your CLI based music manager.")
+
     user = nil
     if user_list.empty?
         user = create_user(user_list)
     else
-        # prompt.select("\nAre you existing user", (["Yes I am existing user, I would like login","I am new user, please set my profile"]cycle:true)
         puts "\nAre you existing user"
         puts "Press 1: Yes I am existing user, I would like login"
         puts "Press 2: I am new user, please set my profile"
         user_input = gets.chomp.to_i
-        if user_input == 1
+        case user_input
+        when 1
             user = login(user_list)
-        else
+        when 2
             user = create_user(user_list)
+        else
+            puts "Invalid input"
         end
     end
 
     main_library = user.song_list
-    loop do
+    loop do 
         system("clear")
         puts "What would you like to do??\n"
         puts "1. List all Music files"
@@ -50,7 +55,7 @@ def music_library
             my_playlist(user, main_library)
 
         when 3
-            puts "\nThank you for using My Music Manager today.. See you again soon"
+            puts Rainbow("\nThank you for using My Music Manager today.. See you soon..").cyan
             break
 
         else
@@ -81,7 +86,7 @@ def create_user(user_list)
         puts "Press 2: Exit from My Music Manager"
         user_input = gets.chomp.to_i
         if user_input == 2
-            puts "\n\nThank you for using My Music Manager today.. See you again soon"
+            puts Rainbow("\n\nThank you for using My Music Manager today.. See you again soon").cyan
             exit 0
         end
         puts ""
@@ -89,32 +94,38 @@ def create_user(user_list)
 
     print "Select your password: "
     pword = $stdin.noecho(&:gets).chomp
+    puts "\n\nThank you.. Let's organize your music files\n"
 
-    puts "\n\nThank you.. Let's organize your music files\nPlease add the absolute path to your music directory."
-    path = gets.chomp
-    puts "\nUsing #{path} as your music library base"
+    begin
+        puts "Please add the absolute path to your music directory."
+        path = gets.chomp
+        puts "Using #{path} as your music library base\n"
+        # creating new USER instance:
+        user = User.new(fname, lname, uname, pword, path)
 
-    # creating new USER instance:
-    user = User.new(fname, lname, uname, pword, path)
-    puts "\nCongratulations! Your Music Library profile been created."
+        raise NoSongsFoundException if user.song_list.songs.length.zero?
 
-    CSV.open("user_list.csv", "a", headers: true) do |csv|
-        csv << [user.first_name, user.last_name, user.username, user.password, user.dir_location]
+        puts "\nCongratulations! Your Music Library profile been created."
+
+        CSV.open("user_list.csv", "a", headers: true) do |csv|
+            csv << [user.first_name, user.last_name, user.username, user.password, user.dir_location]
+        end
+
+        puts "\nYour music library has following songs.\n\n"
+        user.song_list.list_songs
+        puts "\n\n"
+        sleep(2)
+        return user
+    rescue Errno::ENOENT
+        puts "There seems to be some error with path provided.\nLets try again.\n\n"
+        retry
+    rescue NoSongsFoundException
+        puts "Failed to find any music files at the provided path.\nLets try again.\n\n"
+        retry
     end
-
-    if user.song_list.songs.length.zero?
-        puts "\nFailed to find any music files at \"#{user.dir_location}\"."
-        puts "Please add music files at this location and come back. Bye for now"
-        exit 0
-    end
-
-    puts "\nYour music library has following songs.\n\n"
-    user.song_list.list_songs
-    puts "\n\n"
-    sleep(2)
-    return user
 end
 
+# Login a user
 def login(user_list)
     uname = nil
     loop do
@@ -129,7 +140,7 @@ def login(user_list)
         puts "Press 2: Exit from My Music Manager"
         user_input = gets.chomp.to_i
         if user_input == 2
-            puts "\n\nThank you for using My Music Manager today.. See you again soon"
+            puts Rainbow("\n\nThank you for using My Music Manager today.. See you again soon").cyan
             exit 0
         end
         puts ""
@@ -169,6 +180,7 @@ def login(user_list)
     return user
 end
 
+# List user songs
 def list_all_songs(main_library)
     loop do
         system("clear")
@@ -200,6 +212,7 @@ def list_all_songs(main_library)
     end
 end
 
+# Playlist options
 def my_playlist(user, main_library)
     loop do
         system("clear")
@@ -217,7 +230,7 @@ def my_playlist(user, main_library)
                 puts "You have not created any playlist yet. Lets start by creating a new playlist from previous menu\n\n\n"
                 sleep(2)
             else
-                user.playlists
+                user.show_playlists
                 puts "Choose playlist No. you would like to go to"
                 playlist_number = gets.chomp.to_i
                 playlist = user.playlist_list[playlist_number - 1]
@@ -228,7 +241,7 @@ def my_playlist(user, main_library)
 
         when 2
             system("clear")
-            playlist = user.create_playlist(main_library)
+            playlist = user.create_playlist
             system("clear")
             puts "Congratulations! new playlist #{playlist.name} has been created."
             puts "The #{playlist.name} playlist contains following songs:"
@@ -245,6 +258,7 @@ def my_playlist(user, main_library)
     end
 end
 
+# Operate on a selected playlist
 def playlist_operations(user, playlist)
     loop do
         playlist_file_path = "#{user.music_manager_playlist_dir}/#{playlist.name}.playlist"
