@@ -18,7 +18,7 @@ class User
         @song_list = Playlist.new("Main_Library")
         @dir_location = path
 
-        create_library
+        create_library(@dir_location)
         create_playlist_directory
         read_playlists
     end
@@ -27,12 +27,15 @@ class User
         "#{@first_name} #{@last_name}"
     end
 
-    def create_library
+    def create_library(music_dir_path)
         music_file_formats = [".mp3", ".mp4", ".wav"]
-        Dir.each_child(@dir_location) do |file_name|
+        Dir.each_child(music_dir_path) do |file_name|
+            file_path = File.join(music_dir_path, Shellwords.escape(file_name))
+
+            create_library(file_path) if File.directory?(file_path)
+
             next unless music_file_formats.include? File.extname(file_name)
 
-            file_path = File.join(@dir_location, Shellwords.escape(file_name))
             new_song = Song.new(file_name, file_path)
             @song_list.songs.push(new_song)
         end

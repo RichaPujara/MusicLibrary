@@ -1,12 +1,9 @@
-require './playlist'
-require './song'
 require './user'
 require 'json'
 require 'fileutils'
 
 describe User do
-    let(:user) { User.new("Jane", "Doe", "username", "password", "resources/test") }
-    let(:song) { Song.new("name", "song_path") }
+    let(:user) { User.new("Jane", "Doe", "username", "password", "resources") }
     after(:all) { FileUtils.rm_rf("data/username") }
 
     it 'creates a new User when initialized' do
