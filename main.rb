@@ -25,7 +25,7 @@ def music_library
         puts "\nAre you existing user"
         puts "Press 1: Yes I am existing user, I would like login"
         puts "Press 2: I am new user, please set my profile"
-        user_input = gets.chomp
+        user_input = gets.chomp.to_i
         if user_input == 1
             user = login(user_list)
         else
