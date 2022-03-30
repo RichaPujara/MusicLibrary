@@ -171,8 +171,8 @@ def login(user_list)
     puts "\nHello #{user.name}"
 
     if user.song_list.songs.length.zero?
-        puts "\nFailed to find any music files at \"#{user.dir_location}\"."
-        puts "Please add music files at this location and come back. Bye for now"
+        puts Rainbow("\nFailed to find any music files at \"#{user.dir_location}\".").yellow
+        puts Rainbow("Please add music files at this location and come back. Bye for now").cyan
         exit 0
     end
 
