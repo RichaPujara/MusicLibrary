@@ -62,11 +62,8 @@ class User
 
         puts "\nSongs in your music library:"
         @song_list.list_songs
-        puts "\nPlease select the song no.s you want to add into #{playlist.name} playlist as comma separated list: "
-        sel = gets.chomp.split(",").to_a
-        sel.each do |s|
-            playlist.add_song(@song_list.songs[s.to_i - 1])
-        end
+        song_numbers = get_user_song_choices("\nPlease select the song no.s you want to add into #{playlist.name} Playlist as comma separated list: ", @song_list.songs.length + 1) 
+        playlist.add_songs(@song_list.songs, song_numbers)
 
         File.open("#{music_manager_playlist_dir}/#{pname}.playlist", "w") do |f|
             f.puts playlist.songs.to_json

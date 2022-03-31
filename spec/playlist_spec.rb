@@ -65,7 +65,7 @@ describe Playlist do
             song = Song.new("name", "path")
             my_playlist.add_song(song)
             expect_any_instance_of(Kernel).to receive(:system).with "play -V1 -q -S path"
-            my_playlist.play_song(1)
+            my_playlist.play_song(0)
         end
     end
 

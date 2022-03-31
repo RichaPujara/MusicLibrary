@@ -69,13 +69,26 @@ def get_user_song_choices(msg, max)
     begin
         puts msg
         input = gets.strip
-        unless input.split(',').all? { |num| num =~ /\A-?\d?\Z/ && num.to_i.positive? && num.to_i < max }
-             raise InvalidInputException
+        unless input.split(',').all? { |num| num =~ /\d+/ && num.to_i.positive? && num.to_i < max }
+            raise InvalidInputException
         end
 
         input.split(',')
     rescue InvalidInputException
         puts "Song number choice is invalid. Lets try again\n"
+        retry
+    end
+end
+
+def get_user_playlist_choice(max)
+    begin
+        puts "\nChoose Playlist Number you would like to go to. Press 0 to go back to previous screen."
+        num = gets.strip
+        raise InvalidInputException unless num =~ /\d+/ && num.to_i >= 0 && num.to_i < max
+
+        num.to_i
+    rescue InvalidInputException
+        puts "Playlist choice is invalid. Lets try again\n"
         retry
     end
 end

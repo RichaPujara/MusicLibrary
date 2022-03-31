@@ -175,12 +175,9 @@ def list_all_songs(main_library)
             main_library.play_all
 
         when 2
-            begin
-                puts "Please input the song no you want to play:"
-                main_library.play_song(gets.chomp.to_i)
-            rescue NoMethodError
-                puts "Invalid Input. Please add the 'Number' in range 1..#{main_library.songs.length}"
-                sleep(3)
+            song_numbers = get_user_song_choices("Please input the song no you want to play:", main_library.songs.length + 1)
+            song_numbers.each do |song_number|
+                main_library.play_song(song_number.to_i - 1)
             end
 
         when 3
@@ -214,8 +211,7 @@ def my_playlist(user, _main_library)
             else
                 puts "You have following Playlists:"
                 user.show_playlists
-                puts "\nChoose Playlist Number you would like to go to. Press 0 to go back to previous screen."
-                playlist_number = gets.chomp.to_i
+                playlist_number = get_user_playlist_choice(user.playlist_list.length + 1)
 
                 next if playlist_number.zero?
 

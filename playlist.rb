@@ -102,7 +102,7 @@ class Playlist
     end
 
     def play_song(song_no)
-        song = @songs[song_no - 1]
+        song = @songs[song_no]
         system("play -V1 -q -S #{song.song_path}")
     end
 
