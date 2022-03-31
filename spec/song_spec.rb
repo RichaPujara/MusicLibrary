@@ -53,11 +53,4 @@ describe Song do
             expect(song.change_artist("new_playtime")).to eq "new_playtime"
         end
     end
-
-    describe "#play_song" do
-        it "runs the music file at given destination" do
-            expect_any_instance_of(Kernel).to receive(:system).with "play -V1 -q -S SONG_PATH"
-            song.play_song
-        end
-    end
 end

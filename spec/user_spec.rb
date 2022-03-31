@@ -56,9 +56,7 @@ describe User do
 
     describe "#show_playlists" do
         it "show users playlist" do
-            expect {
-                user.show_playlists
-            }.to output("1. test\n").to_stdout
+            expect { user.show_playlists }.to output("1. test\n").to_stdout
         end
     end
 

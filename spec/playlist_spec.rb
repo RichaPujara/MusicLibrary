@@ -43,9 +43,7 @@ describe Playlist do
         it "list playlist songs" do
             song = Song.new("name", "path")
             my_playlist.add_song(song)
-            expect {
-                my_playlist.list_songs
-            }.to output("1. name\n").to_stdout
+            expect { my_playlist.list_songs }.to output("1. name\n").to_stdout
         end
     end
 
@@ -53,28 +51,41 @@ describe Playlist do
         it "shuffle play playlist songs" do
             song = Song.new("name", "path")
             my_playlist.add_song(song)
-            expect_any_instance_of(Kernel).to receive(:system).with "play -V1 -q -S path"
-            expect {
-                my_playlist.shuffle_play
-            }.to output("Shuffled songs in Playlist1 Playlist and playing them in following order\n1. name\n").to_stdout
+            expect_any_instance_of(Kernel).to receive(:system).with "mpg123 -q path "
+            expected_puts = "Shuffled songs in Playlist1 Playlist and playing them in following order\n" \
+                            "1. name\n" \
+                            "\e[38;5;226m\n\nPress 's' or spacebar to pause and unpause music\e[0m\n" \
+                            "\e[38;5;226mPress 'f' to play next track\e[0m\n" \
+                            "\e[38;5;226mPress 'd' to play previous track\e[0m\n" \
+                            "\e[38;5;226mPress 'b' to play from beginning of track\e[0m\n" \
+                            "\e[38;5;226mPress 't' to display track information\e[0m\n" \
+                            "\e[38;5;226mPress 'q' to quit music player\e[0m\n" \
+                            "\e[38;5;226mPress 'h' to view more music player options\e[0m\n"
+            expect { my_playlist.shuffle_play }.to output(expected_puts).to_stdout
         end
     end
 
     describe "#play_song(song_no)" do
         it "play a song from playlist" do
+            actual_stdout = $stdout
+            $stdout = File.open(File::NULL, "w")
             song = Song.new("name", "path")
             my_playlist.add_song(song)
-            expect_any_instance_of(Kernel).to receive(:system).with "play -V1 -q -S path"
+            expect_any_instance_of(Kernel).to receive(:system).with "mpg123 -q path"
             my_playlist.play_song(0)
+            $stdout = actual_stdout
         end
     end
 
     describe "#play_all" do
         it "play all songs in playlist" do
+            actual_stdout = $stdout
+            $stdout = File.open(File::NULL, "w")
             song = Song.new("name", "path")
             my_playlist.add_song(song)
-            expect_any_instance_of(Kernel).to receive(:system).with "play -V1 -q -S path"
+            expect_any_instance_of(Kernel).to receive(:system).with "mpg123 -q path "
             my_playlist.play_all
+            $stdout = actual_stdout
         end
     end
 
