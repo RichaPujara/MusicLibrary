@@ -28,7 +28,7 @@ class User
     end
 
     def create_library(music_dir_path)
-        music_file_formats = [".mp3", ".mp4", ".wav"]
+        music_file_formats = [".mp3", ".mpeg"]
         Dir.each_child(music_dir_path) do |file_name|
             file_path = File.join(music_dir_path, Shellwords.escape(file_name))
 

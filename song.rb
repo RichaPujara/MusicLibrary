@@ -32,8 +32,4 @@ class Song
     def change_playtime(new_playtime)
         @playtime = new_playtime
     end
-
-    def play_song
-        system("play -V1 -q -S #{@song_path}")
-    end
 end

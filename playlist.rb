@@ -96,20 +96,31 @@ class Playlist
             puts "#{index + 1}. #{song.song_title}"
         end
 
-        shuffled_songs.each do |song|
-            system("play -V1 -q -S #{song.song_path}")
-        end
+        play_all(shuffled_songs)
     end
 
     def play_song(song_no)
         song = @songs[song_no]
-        system("play -V1 -q -S #{song.song_path}")
+        play(song.song_path.to_s)
     end
 
-    def play_all
-        @songs.each do |song|
-            system("play -V1 -q -S #{song.song_path}")
+    def play_all(songs = @songs)
+        song_paths = ""
+        songs.each do |song|
+            song_paths = "#{song_paths}#{song.song_path} "
         end
+        play(song_paths)
+    end
+
+    def play(song_paths)
+        puts_gold("\n\nPress 's' or spacebar to pause and unpause music")
+        puts_gold("Press 'f' to play next track")
+        puts_gold("Press 'd' to play previous track")
+        puts_gold("Press 'b' to play from beginning of track")
+        puts_gold("Press 't' to display track information")
+        puts_gold("Press 'q' to quit music player")
+        puts_gold("Press 'h' to view more music player options")
+        system("mpg123 -q #{song_paths}")
     end
 
     def save_playlist(playlist_file_path)
