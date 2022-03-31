@@ -1,5 +1,6 @@
 require 'tty-font'
 require 'rainbow'
+require './invalid_input_exception'
 
 # Logo
 def show_logo
@@ -41,4 +42,40 @@ def menu_option(question, options)
     end
     puts_indianred("Press #{options.length + 1}: To close My Music World")
     gets.chomp.to_i
+end
+
+# Display invalid input message
+def show_invalid_input
+    puts "Invalid Input. Please try again with a valid input"
+    sleep(2)
+end
+
+def get_song_diff(song_list1, song_list2)
+    songs_diff = []
+    song_list1.each do |song|
+        not_in_list = false
+        song_list2.each do |playlist_song|
+            if playlist_song.song_title == song.song_title
+                not_in_list = true
+                break
+            end
+        end
+        songs_diff.push(song) unless not_in_list
+    end
+    songs_diff
+end
+
+def get_user_song_choices(msg, max)
+    begin
+        puts msg
+        input = gets.strip
+        unless input.split(',').all? { |num| num =~ /\A-?\d?\Z/ && num.to_i.positive? && num.to_i < max }
+             raise InvalidInputException
+        end
+
+        input.split(',')
+    rescue InvalidInputException
+        puts "Song number choice is invalid. Lets try again\n"
+        retry
+    end
 end

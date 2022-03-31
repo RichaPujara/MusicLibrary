@@ -5,7 +5,7 @@ require 'json'
 require 'csv'
 require 'rainbow'
 require './user'
-require './noSongsFoundException'
+require './no_songs_found_exception'
 require 'fileutils'
 require './helper'
 

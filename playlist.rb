@@ -15,7 +15,6 @@ class Playlist
             show_logo
             options = ["Add more songs", "Delete songs", "Go Back to previous screen"]
             user_input = menu_option("What would you like to do?", options)
-
             show_logo
 
             case user_input
@@ -32,40 +31,28 @@ class Playlist
                 exit_app
 
             else
-                puts "Invalid Input. Please try again with a valid input"
-                sleep(2)
+                show_invalid_input
             end
         end
     end
 
     def add_songs_to_playlist(main_library, playlist_file_path)
-        songs_not_in_users_playlist = Playlist.new("songs_not_in_users_playlist")
-        main_library.songs.each do |song|
-            not_in_playlist = false
-            @songs.each do |playlist_song|
-                if playlist_song.song_title == song.song_title
-                    not_in_playlist = true
-                    break
-                end
-            end
-
-            songs_not_in_users_playlist.add_song(song) unless not_in_playlist
-        end
-
+        songs_not_in_users_playlist = get_song_diff(main_library.songs, @songs)
         puts "Songs not in #{@name} Playlist but in your music library:\n"
-        songs_not_in_users_playlist.list_songs
-        puts "\nPlease select the song numbers you want to add into #{@name} Playlist:"
-        sel = gets.chomp.split(",").to_a
-        sel.each do |s|
-            add_song(songs_not_in_users_playlist.songs["#{s}".to_i - 1])
-        end
-
+        list_songs(songs_not_in_users_playlist)
+        song_numbers = get_user_song_choices("\nPlease select the song numbers you want to add into #{@name} Playlist:", songs_not_in_users_playlist.length + 1)
+        add_songs(songs_not_in_users_playlist, song_numbers)
         save_playlist(playlist_file_path)
-
         puts "\n\nCongratulations! your Playlist #{@name} has been updated."
         puts "The #{@name} Playlist now contains following songs:"
         list_songs
         sleep(2)
+    end
+
+    def add_songs(songs, song_numbers)
+        song_numbers.each do |song_number|
+            add_song(songs[song_number.to_i - 1])
+        end
     end
 
     def add_song(new_song)
@@ -75,18 +62,19 @@ class Playlist
     def remove_songs_from_playlist(playlist_file_path)
         puts "Songs in your Playlist:\n"
         list_songs
-        puts "\nSelect the songs numbers that you want to delete from #{@name} Playlist:"
-        sel = gets.chomp.split(",").to_a
-        sel.each do |s|
-            remove_song(@songs["#{s}".to_i - 1])
-        end
-
+        song_numbers = get_user_song_choices("\nSelect the songs numbers that you want to delete from #{@name} Playlist:", @songs.length + 1) 
+        remove_songs(song_numbers)
         save_playlist(playlist_file_path)
-
         puts "\n\nCongratulations! Your Playlist #{@name} has been updated."
         puts "The #{@name} Playlist now contains following songs:"
         list_songs
         sleep(2)
+    end
+
+    def remove_songs(song_numbers)
+        song_numbers.each do |song_number|
+            remove_song(@songs[song_number.to_i - 1])
+        end
     end
 
     def remove_song(song_name)
@@ -94,8 +82,8 @@ class Playlist
         return @song
     end
 
-    def list_songs
-        @songs.each_with_index do |song, index|
+    def list_songs(songs = @songs)
+        songs.each_with_index do |song, index|
             puts "#{index + 1}. #{song.song_title}"
         end
     end
