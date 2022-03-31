@@ -196,8 +196,13 @@ def list_all_songs(main_library)
             main_library.play_all
 
         when 2
-            puts "Please input the song no you want to play:"
-            main_library.play_song(gets.chomp.to_i)
+            begin
+                puts "Please input the song no you want to play:"
+                main_library.play_song(gets.chomp.to_i)
+            rescue NoMethodError
+                puts "Invalid Input. Please add the 'Number' in range 1..#{main_library.songs.length}"
+                sleep(3)
+            end
 
         when 3
             main_library.shuffle_play
