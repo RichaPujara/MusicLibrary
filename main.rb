@@ -20,11 +20,8 @@ def music_library
     else
         loop do
             show_logo
-            puts_rosybrown("\nAre you existing user")
-            puts_lightcoral("Press 1: Yes I am existing user, I would like login")
-            puts_lightcoral("Press 2: I am new user, please set my profile")
-            puts_indianred("Press 3: To close My Music World")
-            user_input = gets.chomp.to_i
+            options = ["Yes I am existing user, I would like login", "I am new user, please set my profile"]
+            user_input = menu_option("\nAre you existing user", options)
             case user_input
             when 1
                 user = login(user_list)
@@ -47,11 +44,7 @@ def music_library
     main_library = user.song_list
     loop do
         show_logo
-        puts_rosybrown("What would you like to do??\n")
-        puts_lightcoral("Press 1. List all Music files")
-        puts_lightcoral("Press 2. My Playlists")
-        puts_indianred("Press 3. To close My Music World")
-        user_input = gets.strip.to_i
+        user_input = menu_option("What would you like to do??\n", ["List all Music files", "My Playlists"])
 
         case user_input
         when 1
@@ -87,10 +80,7 @@ def create_user(user_list)
         break unless user_list.by_col["username"].include? uname
 
         puts "Username '#{uname}' exists.\n\n"
-        puts_rosybrown(" Would you like try again with a different username:")
-        puts_lightcoral("Press 1: To try again")
-        puts_indianred("Press 2: To close My Music World")
-        user_input = gets.chomp.to_i
+        user_input = menu_option("Would you like try again with a different username:", ["To try again"])
         exit_app if user_input == 2
         puts ""
     end
@@ -139,10 +129,7 @@ def login(user_list)
         break if user_list.by_col["username"].include? uname
 
         puts "Username '#{uname}' unknown.\n\n"
-        puts_rosybrown("Would you like to try again:")
-        puts_lightcoral("Press 1: To try again")
-        puts_indianred("Press 2: To close My Music World")
-        user_input = gets.chomp.to_i
+        user_input = menu_option("Would you like try again:", ["To try again"])
         exit_app if user_input == 2
         puts ""
     end
@@ -158,10 +145,7 @@ def login(user_list)
         break if user_row["password"] == pword
 
         puts "\nInvalid Password.\n\n"
-        puts_rosybrown("Would you like to try again:")
-        puts_lightcoral("Press 1: To try again")
-        puts_indianred("Press 2: To close My Music World")
-        user_input = gets.chomp.to_i
+        user_input = menu_option("Would you like try again:", ["To try again"])
         exit_app if user_input == 2
         puts ""
     end
@@ -184,13 +168,8 @@ def list_all_songs(main_library)
     loop do
         show_logo
         main_library.list_songs
-        puts_lightcoral("\n\nPress 1: Play All songs")
-        puts_lightcoral("Press 2: Play specific song")
-        puts_lightcoral("Press 3: Shuffle play songs")
-        puts_lightcoral("Press 4: Go Back to previous screen")
-        puts_indianred("Press 5: To close My Music World")
-        user_input = gets.chomp.to_i
-
+        options = ["Play All songs", "Play specific song", "Shuffle play songs", "Go Back to previous screen"]
+        user_input = menu_option("\n\n", options)
         case user_input
         when 1
             main_library.play_all
@@ -224,14 +203,9 @@ end
 def my_playlist(user, _main_library)
     loop do
         show_logo
-        puts_rosybrown("Select from below")
-        puts_lightcoral("Press 1. Select Playlist")
-        puts_lightcoral("Press 2. Create New Playlist")
-        puts_lightcoral("Press 3: Go Back to previous screen")
-        puts_indianred("Press 4: To close My Music World")
-        user_input = gets.chomp.to_i
+        options = ["Select Playlist", "Create New Playlist", "Shuffle play songs", "Go Back to previous screen"]
+        user_input = menu_option("Select from below", options)
         show_logo
-
         case user_input
         when 1
             if user.playlist_list.length.zero?
@@ -273,15 +247,8 @@ def playlist_operations(user, playlist)
         show_logo
         puts "Songs in the Playlist:"
         playlist.list_songs
-        puts_rosybrown("\n\n\nWhat would you like to do now?")
-        puts_lightcoral("Press 1. Play all songs")
-        puts_lightcoral("Press 2. Shuffle play songs")
-        puts_lightcoral("Press 3. Edit Playlist")
-        puts_lightcoral("Press 4. Delete Playlist")
-        puts_lightcoral("Press 5: Go Back to previous screen")
-        puts_indianred("Press 6: To close My Music World")
-        user_input = gets.chomp.to_i
-
+        opt = ["Play all songs", "Shuffle play songs", "Edit Playlist", "Delete Playlist", "Go Back to previous screen"]
+        user_input = menu_option("\n\n\nWhat would you like to do now?", opt)
         case user_input
         when 1
             playlist.play_all

@@ -13,12 +13,9 @@ class Playlist
     def edit_playlist(main_library, playlist_file_path)
         loop do
             show_logo
-            puts_rosybrown("What would you like to do?")
-            puts_lightcoral("Press 1. Add more songs")
-            puts_lightcoral("Press 2. Delete songs")
-            puts_lightcoral("Press 3. Go Back to previous screen")
-            puts_indianred("Press 4: To close My Music World")
-            user_input = gets.chomp.to_i
+            options = ["Add more songs", "Delete songs", "Go Back to previous screen"]
+            user_input = menu_option("What would you like to do?", options)
+
             show_logo
 
             case user_input
