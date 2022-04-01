@@ -35,7 +35,8 @@ def puts_gold(text)
 end
 
 # Display Menu question, option and get user input
-def menu_option(question, options)
+def menu_option(question, options, logo_show)
+    show_logo if logo_show
     puts_rosybrown(question)
     options.each_with_index do |element, index|
         puts_lightcoral("Press #{index + 1}: #{element}")

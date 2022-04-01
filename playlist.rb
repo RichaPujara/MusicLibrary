@@ -12,16 +12,16 @@ class Playlist
 
     def edit_playlist(main_library, playlist_file_path)
         loop do
-            show_logo
             options = ["Add more songs", "Delete songs", "Go Back to previous screen"]
-            user_input = menu_option("What would you like to do?", options)
-            show_logo
+            user_input = menu_option("What would you like to do?", options, true)
 
             case user_input
             when 1
+                show_logo
                 add_songs_to_playlist(main_library, playlist_file_path)
 
             when 2
+                show_logo
                 remove_songs_from_playlist(playlist_file_path)
 
             when 3
@@ -60,7 +60,9 @@ class Playlist
         list_songs
         msg = "\nSelect the songs numbers that you want to delete from #{@name} Playlist:"
         song_numbers = get_song_choices(msg, @songs.length + 1)
-        song_numbers.each { |song_number| @songs.delete(@songs[song_number.to_i - 1]) }
+        songs_to_delete = []
+        song_numbers.each { |number| songs_to_delete.push(@songs[number.to_i - 1]) }
+        @songs -= songs_to_delete
         save_playlist(playlist_file_path)
         show_updated_playlist
     end

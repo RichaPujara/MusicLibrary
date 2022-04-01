@@ -49,7 +49,17 @@ class User
     end
 
     def create_playlist
-        music_manager_playlist_dir = create_playlist_directory
+        playlist = Playlist.new(gets_playlist_name)
+        puts "\nSongs in your music library:"
+        @song_list.list_songs
+        msg = "\nPlease select the song no.s you want to add into #{playlist.name} Playlist as comma separated list: "
+        song_numbers = get_song_choices(msg, @song_list.songs.length + 1)
+        playlist.add_songs(@song_list.songs, song_numbers)
+        save_playlist(playlist)
+        return playlist
+    end
+
+    def gets_playlist_name
         pname = nil
         loop do
             puts "Add the playlist Name:"
@@ -58,24 +68,20 @@ class User
 
             puts "Playlist with name \"#{pname}\" already exists. Please provide a different playlist name"
         end
-        playlist = Playlist.new(pname)
+        pname
+    end
 
-        puts "\nSongs in your music library:"
-        @song_list.list_songs
-        msg = "\nPlease select the song no.s you want to add into #{playlist.name} Playlist as comma separated list: "
-        song_numbers = get_song_choices(msg, @song_list.songs.length + 1)
-        playlist.add_songs(@song_list.songs, song_numbers)
-
-        File.open("#{music_manager_playlist_dir}/#{pname}.playlist", "w") do |f|
+    def save_playlist(playlist)
+        music_manager_playlist_dir = create_playlist_directory
+        File.open("#{music_manager_playlist_dir}/#{playlist.name}.playlist", "w") do |f|
             f.puts playlist.songs.to_json
         end
-
         @playlist_list.push(playlist)
         puts "\nCongratulations! new playlist #{playlist.name} has been created."
-        return playlist
     end
 
     def show_playlists
+        puts "You have following Playlists:"
         @playlist_list.each_with_index do |playlist, index|
             puts "#{index + 1}. #{playlist.name}"
         end
@@ -85,16 +91,20 @@ class User
         Dir.each_child(@music_manager_playlist_dir) do |file_name|
             next unless file_name.include?(".playlist")
 
-            playlist = Playlist.new(file_name.sub(".playlist", ""))
-            File.readlines("#{@music_manager_playlist_dir}/#{file_name}").map do |line|
-                json_obj = JSON.parse(line)
-                json_obj.each do |song_json|
-                    playlist.add_song(Song.new(song_json["song_title"], song_json["song_path"]))
-                end
-            end
-            @playlist_list.push(playlist)
+            read_playlist(file_name)
         end
         return @playlist_list
+    end
+
+    def read_playlist(file_name)
+        playlist = Playlist.new(file_name.sub(".playlist", ""))
+        File.readlines("#{@music_manager_playlist_dir}/#{file_name}").map do |line|
+            json_obj = JSON.parse(line)
+            json_obj.each do |song_json|
+                playlist.add_song(Song.new(song_json["song_title"], song_json["song_path"]))
+            end
+        end
+        @playlist_list.push(playlist)
     end
 
     def delete_playlist(playlist)

@@ -11,54 +11,32 @@ require './helper'
 
 # Entry point of the application
 def music_library
+    user = gets_user
+    main_menu(user)
+end
+
+# Gets the user information
+def gets_user
     user_list = CSV.parse(File.read("user_list.csv"), headers: true)
-    user = nil
+    return user_mgmt(user_list) unless user_list.empty?
 
-    if user_list.empty?
-        show_logo
-        user = create_user(user_list)
-    else
-        loop do
-            show_logo
-            options = ["Yes I am existing user, I would like login", "I am new user, please set my profile"]
-            user_input = menu_option("\nAre you existing user", options)
-            case user_input
-            when 1
-                user = login(user_list)
-                break
+    return create_user(user_list)
+end
 
-            when 2
-                user = create_user(user_list)
-                break
-
-            when 3
-                exit_app
-
-            else
-                puts "Invalid Input. Please try again with a valid input"
-                sleep(2)
-            end
-        end
-    end
-
-    main_library = user.song_list
+def user_mgmt(user_list, uname = nil, pword = nil)
     loop do
         show_logo
-        user_input = menu_option("What would you like to do??\n", ["List all Music files", "My Playlists"])
-
+        options = ["Yes I am existing user, I would like login", "I am new user, please set my profile"]
+        user_input = menu_option("\nAre you existing user", options, true)
         case user_input
         when 1
-            list_all_songs(main_library)
-
+            return login(user_list, uname, pword)
         when 2
-            my_playlist(user, main_library)
-
+            return create_user(user_list)
         when 3
             exit_app
-
         else
-            puts "Invalid Input. Please try again with a valid input"
-            sleep(2)
+            show_invalid_input
         end
     end
 end
@@ -80,7 +58,7 @@ def create_user(user_list)
         break unless user_list.by_col["username"].include? uname
 
         puts "Username '#{uname}' exists.\n\n"
-        user_input = menu_option("Would you like try again with a different username:", ["To try again"])
+        user_input = menu_option("Would you like try again with a different username:", ["To try again"], false)
         exit_app if user_input == 2
         puts ""
     end
@@ -119,7 +97,7 @@ def create_user(user_list)
 end
 
 # Login a user
-def login(user_list, uname = nil, pword = nil)
+def login(user_list, uname, pword)
     loop do
         print "Please enter username: "
         uname = gets.chomp.downcase
@@ -128,7 +106,7 @@ def login(user_list, uname = nil, pword = nil)
         break if user_list.by_col["username"].include? uname
 
         puts "Username '#{uname}' unknown.\n\n"
-        user_input = menu_option("Would you like try again:", ["To try again", "Create new profile"])
+        user_input = menu_option("Would you like try again:", ["To try again", "Create new profile"], false)
         return create_user(user_list) if user_input == 2
 
         exit_app if user_input == 3
@@ -145,7 +123,7 @@ def login(user_list, uname = nil, pword = nil)
         break if user_row["password"] == pword
 
         puts "\nInvalid Password.\n\n"
-        user_input = menu_option("Would you like try again:", ["To try again", "Create new profile"])
+        user_input = menu_option("Would you like try again:", ["To try again", "Create new profile"], false)
         return create_user(user_list) if user_input == 2
 
         exit_app if user_input == 3
@@ -165,88 +143,117 @@ def login(user_list, uname = nil, pword = nil)
     return user
 end
 
-# List user songs
-def list_all_songs(main_library)
+# Show application main menu
+def main_menu(user)
+    main_library = user.song_list
+    loop do
+        user_input = menu_option("What would you like to do?\n", ["List all Music files", "My Playlists"], true)
+
+        case user_input
+        when 1
+            all_songs_menu(main_library)
+
+        when 2
+            my_playlist_menu(user, main_library)
+
+        when 3
+            exit_app
+
+        else
+            show_invalid_input
+        end
+    end
+end
+
+# List user songs and operations on it
+def all_songs_menu(main_library)
     loop do
         show_logo
         main_library.list_songs
-        options = ["Play All songs", "Play specific song", "Shuffle play songs", "Go Back to previous screen"]
-        user_input = menu_option("\n\n", options)
+        break if all_song_operations_menu(main_library) == -1
+    end
+end
+
+# Operate on a song list
+def all_song_operations_menu(main_library)
+    options = ["Play All songs", "Play specific song", "Shuffle play songs", "Go Back to previous screen"]
+    user_input = menu_option("\n\n", options, false)
+    case user_input
+    when 1
+        main_library.play_all
+    when 2
+        song_numbers = get_song_choices("Please input the song no you want to play:", main_library.songs.length + 1)
+        song_numbers.each { |song_number| main_library.play_song(song_number.to_i - 1) }
+    when 3
+        main_library.shuffle_play
+    when 4
+        return -1
+    when 5
+        exit_app
+    else
+        show_invalid_input
+    end
+end
+
+# Show playlist operations
+def my_playlist_menu(user, _main_library)
+    loop do
+        options = ["Select Playlist", "Create New Playlist", "Go Back to previous screen"]
+        user_input = menu_option("Select from below", options, true)
         case user_input
         when 1
-            main_library.play_all
-
+            select_playlist(user)
         when 2
-            song_numbers = get_song_choices("Please input the song no you want to play:", main_library.songs.length + 1)
-            song_numbers.each do |song_number|
-                main_library.play_song(song_number.to_i - 1)
-            end
-
+            create_playlist(user)
         when 3
-            main_library.shuffle_play
-
-        when 4
             break
-
-        when 5
+        when 4
             exit_app
-
         else
-            puts "Invalid Input. Please try again with a valid input"
-            sleep(2)
+            show_invalid_input
         end
     end
 end
 
-# Playlist options
-def my_playlist(user, _main_library)
-    loop do
-        show_logo
-        options = ["Select Playlist", "Create New Playlist", "Shuffle play songs", "Go Back to previous screen"]
-        user_input = menu_option("Select from below", options)
-        show_logo
-        case user_input
-        when 1
-            if user.playlist_list.length.zero?
-                puts "You have not created any Playlist yet. Lets start by creating a new Playlist from previous menu\n\n"
-                sleep(2)
-            else
-                puts "You have following Playlists:"
-                user.show_playlists
-                playlist_number = get_user_playlist_choice(user.playlist_list.length + 1)
+# Get user to create a playlist
+def create_playlist(user)
+    show_logo
+    playlist = user.create_playlist
+    playlist_operations_menu(user, playlist)
+end
 
-                next if playlist_number.zero?
-
-                playlist = user.playlist_list[playlist_number - 1]
-                playlist_operations(user, playlist)
-            end
-
-        when 2
-            playlist = user.create_playlist
-            playlist_operations(user, playlist)
-
-        when 3
-            break
-
-        when 4
-            exit_app
-
-        else
-            puts "Invalid Input. Please try again with a valid input"
-            sleep(2)
-        end
+# Get user to select a playlist
+def select_playlist(user)
+    show_logo
+    if user.playlist_list.length.zero?
+        puts "You have not created any Playlist yet. Lets start by creating a new Playlist\n"
+        sleep(2)
+        create_playlist(user)
+    else
+        select_a_playlist(user)
     end
+end
+
+# Select a playlist
+def select_a_playlist(user)
+    user.show_playlists
+    playlist_number = get_user_playlist_choice(user.playlist_list.length + 1)
+
+    return if playlist_number.zero?
+
+    playlist = user.playlist_list[playlist_number - 1]
+    playlist_operations_menu(user, playlist)
 end
 
 # Operate on a selected playlist
-def playlist_operations(user, playlist)
+def playlist_operations_menu(user, playlist)
     loop do
         playlist_file_path = "#{user.music_manager_playlist_dir}/#{playlist.name}.playlist"
         show_logo
         puts "Songs in the Playlist:"
         playlist.list_songs
         opt = ["Play all songs", "Shuffle play songs", "Edit Playlist", "Delete Playlist", "Go Back to previous screen"]
-        user_input = menu_option("\n\n\nWhat would you like to do now?", opt)
+        user_input = menu_option("\n\n\nWhat would you like to do now?", opt, false)
         case user_input
         when 1
             playlist.play_all
@@ -268,8 +275,7 @@ def playlist_operations(user, playlist)
             exit_app
 
         else
-            puts "Invalid Input. Please try again with a valid input"
-            sleep(2)
+            show_invalid_input
         end
     end
 end
