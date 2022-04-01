@@ -1,2 +1,0 @@
-class NoSongsFoundException < StandardError
-end

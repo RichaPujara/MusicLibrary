@@ -62,7 +62,8 @@ class User
 
         puts "\nSongs in your music library:"
         @song_list.list_songs
-        song_numbers = get_user_song_choices("\nPlease select the song no.s you want to add into #{playlist.name} Playlist as comma separated list: ", @song_list.songs.length + 1) 
+        msg = "\nPlease select the song no.s you want to add into #{playlist.name} Playlist as comma separated list: "
+        song_numbers = get_song_choices(msg, @song_list.songs.length + 1)
         playlist.add_songs(@song_list.songs, song_numbers)
 
         File.open("#{music_manager_playlist_dir}/#{pname}.playlist", "w") do |f|
@@ -87,7 +88,7 @@ class User
             playlist = Playlist.new(file_name.sub(".playlist", ""))
             File.readlines("#{@music_manager_playlist_dir}/#{file_name}").map do |line|
                 json_obj = JSON.parse(line)
-                json_obj.each do | song_json |
+                json_obj.each do |song_json|
                     playlist.add_song(Song.new(song_json["song_title"], song_json["song_path"]))
                 end
             end

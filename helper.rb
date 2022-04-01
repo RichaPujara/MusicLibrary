@@ -1,6 +1,6 @@
 require 'tty-font'
 require 'rainbow'
-require './invalid_input_exception'
+require './exceptions'
 
 # Logo
 def show_logo
@@ -65,30 +65,36 @@ def get_song_diff(song_list1, song_list2)
     songs_diff
 end
 
-def get_user_song_choices(msg, max)
-    begin
+def get_song_choices(msg, max)
         puts msg
         input = gets.strip
         unless input.split(',').all? { |num| num =~ /\d+/ && num.to_i.positive? && num.to_i < max }
-            raise InvalidInputException
+            raise InvalidInputError
         end
 
         input.split(',')
-    rescue InvalidInputException
+rescue InvalidInputError
         puts "Song number choice is invalid. Lets try again\n"
         retry
-    end
 end
 
 def get_user_playlist_choice(max)
-    begin
         puts "\nChoose Playlist Number you would like to go to. Press 0 to go back to previous screen."
         num = gets.strip
-        raise InvalidInputException unless num =~ /\d+/ && num.to_i >= 0 && num.to_i < max
+        raise InvalidInputError unless num =~ /\d+/ && num.to_i >= 0 && num.to_i < max
 
         num.to_i
-    rescue InvalidInputException
+rescue InvalidInputError
         puts "Playlist choice is invalid. Lets try again\n"
         retry
-    end
+end
+
+def show_playback_options
+    puts_gold("\n\nPress 's' or spacebar to pause and unpause music")
+    puts_gold("Press 'f' to play next track")
+    puts_gold("Press 'd' to play previous track")
+    puts_gold("Press 'b' to play from beginning of track")
+    puts_gold("Press 't' to display track information")
+    puts_gold("Press 'q' to quit music player")
+    puts_gold("Press 'h' to view more music player options")
 end

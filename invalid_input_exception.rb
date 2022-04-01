@@ -1,2 +1,0 @@
-class InvalidInputException < StandardError
-end

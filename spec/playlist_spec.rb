@@ -4,7 +4,10 @@ require 'json'
 
 describe Playlist do
     let(:my_playlist) { Playlist.new("Playlist1") }
-    before { allow(::Kernel).to receive(:system) }
+    before do
+        allow(::Kernel).to receive(:system)
+        allow_any_instance_of(Object).to receive(:sleep)
+    end
 
     it "creates a new song when initialize" do
         expect(my_playlist).not_to be_nil
@@ -31,14 +34,6 @@ describe Playlist do
         end
     end
 
-    describe "#remove_song(song_name)" do
-        it "remove song from playlist song list" do
-            song = Song.new("name", "path")
-            my_playlist.remove_song(song)
-            expect(my_playlist.songs).to eq []
-        end
-    end
-
     describe "#list_songs(song_name)" do
         it "list playlist songs" do
             song = Song.new("name", "path")
@@ -49,19 +44,13 @@ describe Playlist do
 
     describe "#shuffle_play" do
         it "shuffle play playlist songs" do
+            actual_stdout = $stdout
+            $stdout = File.open(File::NULL, "w")
             song = Song.new("name", "path")
             my_playlist.add_song(song)
             expect_any_instance_of(Kernel).to receive(:system).with "mpg123 -q path "
-            expected_puts = "Shuffled songs in Playlist1 Playlist and playing them in following order\n" \
-                            "1. name\n" \
-                            "\e[38;5;226m\n\nPress 's' or spacebar to pause and unpause music\e[0m\n" \
-                            "\e[38;5;226mPress 'f' to play next track\e[0m\n" \
-                            "\e[38;5;226mPress 'd' to play previous track\e[0m\n" \
-                            "\e[38;5;226mPress 'b' to play from beginning of track\e[0m\n" \
-                            "\e[38;5;226mPress 't' to display track information\e[0m\n" \
-                            "\e[38;5;226mPress 'q' to quit music player\e[0m\n" \
-                            "\e[38;5;226mPress 'h' to view more music player options\e[0m\n"
-            expect { my_playlist.shuffle_play }.to output(expected_puts).to_stdout
+            my_playlist.shuffle_play
+            $stdout = actual_stdout
         end
     end
 

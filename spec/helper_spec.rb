@@ -1,9 +1,9 @@
 require './helper'
 
-describe "#get_user_song_choices(msg, max)" do
+describe "#get_song_choices(msg, max)" do
     it "get song numbers as valid array of numbers within range" do
         allow_any_instance_of(Kernel).to receive(:gets).and_return('1,2,3')
-        expect { get_user_song_choices("test msg", 5) }.to output("test msg\n").to_stdout and eq %w[1 2 3]
+        expect { get_song_choices("test msg", 5) }.to output("test msg\n").to_stdout and eq %w[1 2 3]
     end
 
     it "get song numbers as valid array of numbers within range on third try" do
@@ -11,7 +11,7 @@ describe "#get_user_song_choices(msg, max)" do
         expected_puts = "test msg\nSong number choice is invalid. Lets try again\n" \
                         "test msg\nSong number choice is invalid. Lets try again\n"\
                         "test msg\n"
-        expect { get_user_song_choices("test msg", 5) }.to output(expected_puts).to_stdout and eq %w[1 2 3]
+        expect { get_song_choices("test msg", 5) }.to output(expected_puts).to_stdout and eq %w[1 2 3]
     end
 end
 

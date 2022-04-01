@@ -4,16 +4,16 @@ require "io/console"
 require 'json'
 require 'csv'
 require 'rainbow'
-require './user'
-require './no_songs_found_exception'
 require 'fileutils'
+require './user'
+require './exceptions'
 require './helper'
 
 # Entry point of the application
 def music_library
     user_list = CSV.parse(File.read("user_list.csv"), headers: true)
-
     user = nil
+
     if user_list.empty?
         show_logo
         user = create_user(user_list)
@@ -96,7 +96,7 @@ def create_user(user_list)
         # creating new USER instance:
         user = User.new(fname, lname, uname, pword, path)
 
-        raise NoSongsFoundException if user.song_list.songs.length.zero?
+        raise NoSongsFoundError if user.song_list.songs.length.zero?
 
         puts "\nCongratulations! Your Music Library profile been created."
 
@@ -112,15 +112,14 @@ def create_user(user_list)
     rescue Errno::ENOENT
         puts "There seems to be some error with path provided.\nLets try again.\n\n"
         retry
-    rescue NoSongsFoundException
+    rescue NoSongsFoundError
         puts "Failed to find any music files at the provided path.\nLets try again.\n\n"
         retry
     end
 end
 
 # Login a user
-def login(user_list)
-    uname = nil
+def login(user_list, uname = nil, pword = nil)
     loop do
         print "Please enter username: "
         uname = gets.chomp.downcase
@@ -129,12 +128,13 @@ def login(user_list)
         break if user_list.by_col["username"].include? uname
 
         puts "Username '#{uname}' unknown.\n\n"
-        user_input = menu_option("Would you like try again:", ["To try again"])
-        exit_app if user_input == 2
+        user_input = menu_option("Would you like try again:", ["To try again", "Create new profile"])
+        return create_user(user_list) if user_input == 2
+
+        exit_app if user_input == 3
         puts ""
     end
 
-    pword = nil
     user_row = user_list.find { |row| row["username"] == uname }
 
     loop do
@@ -145,8 +145,10 @@ def login(user_list)
         break if user_row["password"] == pword
 
         puts "\nInvalid Password.\n\n"
-        user_input = menu_option("Would you like try again:", ["To try again"])
-        exit_app if user_input == 2
+        user_input = menu_option("Would you like try again:", ["To try again", "Create new profile"])
+        return create_user(user_list) if user_input == 2
+
+        exit_app if user_input == 3
         puts ""
     end
 
@@ -175,7 +177,7 @@ def list_all_songs(main_library)
             main_library.play_all
 
         when 2
-            song_numbers = get_user_song_choices("Please input the song no you want to play:", main_library.songs.length + 1)
+            song_numbers = get_song_choices("Please input the song no you want to play:", main_library.songs.length + 1)
             song_numbers.each do |song_number|
                 main_library.play_song(song_number.to_i - 1)
             end
