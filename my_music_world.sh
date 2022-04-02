@@ -24,6 +24,7 @@ do
             user_input=$(echo "$user_input" | awk '{print tolower($0)}')
             if [ "y" = $user_input ]
             then
+                printf "Great! enjoy"
                 printf "Taking you to MY MUSIC WORLD\n"
                 sleep 2
                 ruby my_music_world.rb
@@ -68,4 +69,4 @@ then
 fi
 
 # Start MY MUSIC WORLD ruby app
-#${cmd}
+${cmd}
