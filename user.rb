@@ -63,7 +63,7 @@ class User
         pname = nil
         loop do
             puts "Add the playlist Name:"
-            pname = gets.chomp
+            pname = $stdin.gets.chomp
             break unless File.exist?("#{music_manager_playlist_dir}/#{pname}.playlist")
 
             puts "Playlist with name \"#{pname}\" already exists. Please provide a different playlist name"

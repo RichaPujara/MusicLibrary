@@ -10,20 +10,20 @@ require './exceptions'
 require './helper'
 
 # Entry point of the application
-def music_library
-    user = gets_user
+def music_library(username = nil, password = nil)
+    user = gets_user(username, password)
     main_menu(user)
 end
 
 # Gets the user information
-def gets_user
+def gets_user(username, password)
     user_list = CSV.parse(File.read("user_list.csv"), headers: true)
-    return user_mgmt(user_list) unless user_list.empty?
+    return user_mgmt(user_list, username, password) unless user_list.empty?
 
     return create_user(user_list)
 end
 
-def user_mgmt(user_list, uname = nil, pword = nil)
+def user_mgmt(user_list, uname, pword)
     loop do
         show_logo
         options = ["Yes I am existing user, I would like login", "I am new user, please set my profile"]
@@ -45,15 +45,15 @@ end
 def create_user(user_list)
     puts "Let's get to know you little better.\n\nPlease tell me"
     print "Your first name: "
-    fname = gets.chomp.upcase
+    fname = $stdin.gets.chomp.upcase
     print "Your last name: "
-    lname = gets.chomp.upcase
+    lname = $stdin.gets.chomp.upcase
     puts "\nHello #{fname} #{lname}"
 
     uname = nil
     loop do
         print "Select your username: "
-        uname = gets.chomp.downcase
+        uname = $stdin.gets.chomp.downcase
 
         break unless user_list.by_col["username"].include? uname
 
@@ -69,9 +69,8 @@ def create_user(user_list)
 
     begin
         puts "Please add the absolute path to your music directory."
-        path = gets.chomp
+        path = $stdin.gets.chomp
         puts "Using #{path} as your music library base\n"
-        # creating new USER instance:
         user = User.new(fname, lname, uname, pword, path)
 
         raise NoSongsFoundError if user.song_list.songs.length.zero?
@@ -87,11 +86,12 @@ def create_user(user_list)
         puts "\n\n"
         sleep(2)
         return user
-    rescue Errno::ENOENT
-        puts "There seems to be some error with path provided.\nLets try again.\n\n"
-        retry
-    rescue NoSongsFoundError
-        puts "Failed to find any music files at the provided path.\nLets try again.\n\n"
+    rescue Errno::ENOENT, NoSongsFoundError
+        puts_indianred("\nThere seems to be some error with the path provided. " \
+                       "Either the path is invalid or no music files found at the path.\n\n")
+        user_input = menu_option("Would you like try again:", ["To try again"], false)
+        exit_app if user_input == 2
+        puts ""
         retry
     end
 end
@@ -99,8 +99,10 @@ end
 # Login a user
 def login(user_list, uname, pword)
     loop do
-        print "Please enter username: "
-        uname = gets.chomp.downcase
+        if uname.nil? || uname.empty?
+            print "Please enter username: "
+            uname = $stdin.gets.chomp.downcase
+        end
 
         break if user_list.empty?
         break if user_list.by_col["username"].include? uname
@@ -110,14 +112,17 @@ def login(user_list, uname, pword)
         return create_user(user_list) if user_input == 2
 
         exit_app if user_input == 3
+        uname = nil
         puts ""
     end
 
     user_row = user_list.find { |row| row["username"] == uname }
 
     loop do
-        print "Please enter password: "
-        pword = $stdin.noecho(&:gets).chomp
+        if pword.nil? || pword.empty?
+            print "Please enter password: "
+            pword = $stdin.noecho(&:gets).chomp
+        end
 
         break if user_list.empty?
         break if user_row["password"] == pword
@@ -128,6 +133,7 @@ def login(user_list, uname, pword)
 
         exit_app if user_input == 3
         puts ""
+        pword = nil
     end
 
     user = User.new(user_row["first_name"], user_row["last_name"], uname, pword, user_row["path"])
@@ -279,5 +285,3 @@ def playlist_operations_menu(user, playlist)
         end
     end
 end
-
-music_library

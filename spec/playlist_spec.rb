@@ -92,7 +92,7 @@ describe Playlist do
             main_library.add_song(song2)
             main_library.add_song(song3)
 
-            allow(my_playlist).to receive(:gets).and_return('1')
+            allow($stdin).to receive(:gets).and_return('1')
             my_playlist.add_songs_to_playlist(main_library, "test.playlist")
             expect(my_playlist.songs).to eq [song, song2]
             File.delete("test.playlist")
@@ -107,7 +107,7 @@ describe Playlist do
             song = Song.new("name", "path")
             my_playlist.add_song(song)
 
-            allow(my_playlist).to receive(:gets).and_return('1')
+            allow($stdin).to receive(:gets).and_return('1')
             my_playlist.remove_songs_from_playlist("test.playlist")
             expect(my_playlist.songs).to eq []
             File.delete("test.playlist")

@@ -7,7 +7,7 @@ def show_logo
     system("clear")
     font = TTY::Font.new(:doom)
     puts_gold("Welcome to")
-    puts Rainbow(font.write("MY  MUSIC  WORLD")).royalblue.bright
+    puts_royalblue(font.write("MY  MUSIC  WORLD"))
     puts_gold("Your CLI based music manager.\n")
 end
 
@@ -18,6 +18,10 @@ def exit_app
 end
 
 # Display coloured text
+def puts_royalblue(text)
+    puts Rainbow(text).royalblue.bright
+end
+
 def puts_rosybrown(text)
     puts Rainbow(text).rosybrown
 end
@@ -42,7 +46,7 @@ def menu_option(question, options, logo_show)
         puts_lightcoral("Press #{index + 1}: #{element}")
     end
     puts_indianred("Press #{options.length + 1}: To close My Music World")
-    gets.chomp.to_i
+    $stdin.gets.chomp.to_i
 end
 
 # Display invalid input message
@@ -68,7 +72,7 @@ end
 
 def get_song_choices(msg, max)
         puts msg
-        input = gets.strip
+        input = $stdin.gets.strip
         unless input.split(',').all? { |num| num =~ /\d+/ && num.to_i.positive? && num.to_i < max }
             raise InvalidInputError
         end
@@ -81,7 +85,7 @@ end
 
 def get_user_playlist_choice(max)
         puts "\nChoose Playlist Number you would like to go to. Press 0 to go back to previous screen."
-        num = gets.strip
+        num = $stdin.gets.strip
         raise InvalidInputError unless num =~ /\d+/ && num.to_i >= 0 && num.to_i < max
 
         num.to_i
