@@ -1,5 +1,15 @@
 #!/bin/bash
 
+if [ ! -f "user_list.csv" ]
+then
+    echo "first_name,last_name,username,password,path" >> user_list.csv
+fi
+
+if [ ! -d "data" ]
+then
+    mkdir data
+fi
+
 while getopts ":u::p:ih" options
 do
     case "${options}" in
@@ -58,4 +68,4 @@ then
 fi
 
 # Start MY MUSIC WORLD ruby app
-${cmd}
+#${cmd}
