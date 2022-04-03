@@ -17,22 +17,22 @@ end
 
 # Gets the user information
 def gets_user(username, password)
-    user_list = CSV.parse(File.read("user_list.csv"), headers: true)
-    return user_mgmt(user_list, username, password) unless user_list.empty?
+    user_file_name = "user_list.csv"
+    user_list = CSV.parse(File.read(user_file_name), headers: true, skip_blanks: true)
+    return user_mgmt(user_list, user_file_name, username, password) unless user_list.empty?
 
-    return create_user(user_list)
+    return create_user(user_list, user_file_name)
 end
 
-def user_mgmt(user_list, uname, pword)
+def user_mgmt(user_list, user_file_name, uname, pword)
     loop do
-        show_logo
         options = ["Yes I am existing user, I would like login", "I am new user, please set my profile"]
         user_input = menu_option("\nAre you existing user", options, true)
         case user_input
         when 1
-            return login(user_list, uname, pword)
+            return login(user_list, user_file_name, uname, pword)
         when 2
-            return create_user(user_list)
+            return create_user(user_list, user_file_name)
         when 3
             exit_app
         else
@@ -42,7 +42,8 @@ def user_mgmt(user_list, uname, pword)
 end
 
 # Create new user
-def create_user(user_list)
+def create_user(user_list, user_file_name)
+    show_logo
     puts "Let's get to know you little better.\n\nPlease tell me"
     print "Your first name: "
     fname = $stdin.gets.chomp.upcase
@@ -55,6 +56,7 @@ def create_user(user_list)
         print "Select your username: "
         uname = $stdin.gets.chomp.downcase
 
+        break if user_list.empty?
         break unless user_list.by_col["username"].include? uname
 
         puts "Username '#{uname}' exists.\n\n"
@@ -77,7 +79,7 @@ def create_user(user_list)
 
         puts "\nCongratulations! Your Music Library profile been created."
 
-        CSV.open("user_list.csv", "a", headers: true) do |csv|
+        CSV.open(user_file_name, "a", headers: true) do |csv|
             csv << [user.first_name, user.last_name, user.username, user.password, user.dir_location]
         end
 
@@ -97,7 +99,13 @@ def create_user(user_list)
 end
 
 # Login a user
-def login(user_list, uname, pword)
+def login(user_list, user_file_name, uname, pword)
+    if user_list.empty?
+        puts_indianred("There are no users setup currently, Lets start with setting you up.\n")
+        sleep(2)
+        return create_user(user_list, user_file_name)
+    end
+
     loop do
         if uname.nil? || uname.empty?
             print "Please enter username: "
@@ -109,7 +117,7 @@ def login(user_list, uname, pword)
 
         puts "Username '#{uname}' unknown.\n\n"
         user_input = menu_option("Would you like try again:", ["To try again", "Create new profile"], false)
-        return create_user(user_list) if user_input == 2
+        return create_user(user_list, user_file_name) if user_input == 2
 
         exit_app if user_input == 3
         uname = nil
@@ -129,7 +137,7 @@ def login(user_list, uname, pword)
 
         puts "\nInvalid Password.\n\n"
         user_input = menu_option("Would you like try again:", ["To try again", "Create new profile"], false)
-        return create_user(user_list) if user_input == 2
+        return create_user(user_list, user_file_name) if user_input == 2
 
         exit_app if user_input == 3
         puts ""

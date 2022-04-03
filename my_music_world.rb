@@ -27,7 +27,8 @@ begin
 
     options = {}
     option_parser.parse!(into: options)
-    user_list = CSV.parse(File.read("user_list.csv"), headers: true)
+    user_file_name = "user_list.csv"
+    user_list = CSV.parse(File.read(user_file_name), headers: true, skip_blanks: true)
 
     if (username.nil? || username.empty?) && (!password.nil? && !password.empty?)
         puts_indianred("Please also provide username when providing password to login into the app.\n")
@@ -37,7 +38,7 @@ begin
         music_library
     else
         show_logo
-        user = login(user_list, username, password)
+        user = login(user_list, user_file_name, username, password)
         main_menu(user)
     end
 rescue OptionParser::MissingArgument => e
