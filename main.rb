@@ -1,10 +1,17 @@
-require 'tty-prompt'
-require "shellwords"
-require "io/console"
+# To check if all the required dependencies are downloaded
+begin
+require 'tty-font'
+require 'shellwords'
+require 'io/console'
 require 'json'
 require 'csv'
 require 'rainbow'
 require 'fileutils'
+rescue LoadError
+    puts "Looks like you haven't got all the dependencies required for this app yet."
+    puts "Please run './my_music_world.sh -i' to install all the dependencied first."
+    exit 0
+end
 require './user'
 require './exceptions'
 require './helper'
