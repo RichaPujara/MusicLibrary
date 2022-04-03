@@ -73,24 +73,26 @@ end
 def get_song_choices(msg, max)
         puts msg
         input = $stdin.gets.strip
+        raise InvalidInputError if input.empty?
         unless input.split(',').all? { |num| num =~ /\d+/ && num.to_i.positive? && num.to_i < max }
             raise InvalidInputError
         end
 
         input.split(',')
 rescue InvalidInputError
-        puts "Song number choice is invalid. Lets try again\n"
+        puts "Song number choice is invalid. Lets try again\n\n"
         retry
 end
 
 def get_user_playlist_choice(max)
         puts "\nChoose Playlist Number you would like to go to. Press 0 to go back to previous screen."
         num = $stdin.gets.strip
+        raise InvalidInputError if num.empty?
         raise InvalidInputError unless num =~ /\d+/ && num.to_i >= 0 && num.to_i < max
 
         num.to_i
 rescue InvalidInputError
-        puts "Playlist choice is invalid. Lets try again\n"
+        puts "Playlist choice is invalid. Lets try again\n\n"
         retry
 end
 

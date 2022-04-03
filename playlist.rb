@@ -38,6 +38,11 @@ class Playlist
 
     def add_songs_to_playlist(main_library, playlist_file_path)
         songs_not_in_users_playlist = get_song_diff(main_library.songs, @songs)
+        if songs_not_in_users_playlist.empty?
+             puts_indianred("All songs in your library in #{@name} Playlist. So can't add anymore songs.\n")
+             sleep(2)
+             return
+        end
         puts "Songs not in #{@name} Playlist but in your music library:\n"
         list_songs(songs_not_in_users_playlist)
         msg = "\nPlease select the song numbers you want to add into #{@name} Playlist:"
